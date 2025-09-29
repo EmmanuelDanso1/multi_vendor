@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 import environ
 from pathlib import Path
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,7 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'accounts'
+    'accounts',
+    'products',
+
     
 ]
 
@@ -64,9 +68,9 @@ ROOT_URLCONF = 'multiVendor_backend.urls'
 
 # CORS
 # Allow React frontend (adjust port if needed)
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",  # React (Vite) default port
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React (Vite) default port
+]
 
 TEMPLATES = [
     {
@@ -146,3 +150,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
