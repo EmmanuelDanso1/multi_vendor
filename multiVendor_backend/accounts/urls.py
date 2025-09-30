@@ -1,19 +1,12 @@
 from django.urls import path
-from .views import (
-    RegisterView,
-    UserDetailView,
-    VendorProfileView,
-    CustomerProfileView,
-)
+from .views import RegisterView, LoginView, VendorDashboardView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
-    # Common
     path("register/", RegisterView.as_view(), name="register"),
-    path("me/", UserDetailView.as_view(), name="user-detail"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    # Vendor endpoints
-    path("vendor/profile/", VendorProfileView.as_view(), name="vendor-profile"),
-
-    # Customer endpoints
-    path("customer/profile/", CustomerProfileView.as_view(), name="customer-profile"),
+    # Vendor-only endpoint
+    path("vendor/dashboard/", VendorDashboardView.as_view(), name="vendor-dashboard"),
 ]

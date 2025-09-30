@@ -1,50 +1,46 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
-from .models import VendorProfile
-from .serializers import (
-    RegisterSerializer,
-    UserSerializer,
-    VendorProfileSerializer,
-)
-from .permissions import IsVendor, IsCustomer
-
-User = get_user_model()
-
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
+from .serializers import RegisterSerializer, LoginSerializer
+from .permissions import IsVendor
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
+    permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
-    permission_classes = []  # anyone can register
 
 
-class UserDetailView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+class LoginView(generics.GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer
 
-    def get_object(self):
-        return self.request.user
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "role": user.role,
+            }
+        }, status=status.HTTP_200_OK)
 
 
-# -------------------------------
-# Vendor Views
-# -------------------------------
-class VendorProfileView(generics.RetrieveUpdateAPIView):
-    queryset = VendorProfile.objects.all()
-    serializer_class = VendorProfileSerializer
-    permission_classes = [IsAuthenticated, IsVendor]
+class VendorDashboardView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsVendor]
 
-    def get_object(self):
-        return self.request.user.vendor_profile
+    def get(self, request):
+        return Response({
+            "message": f"Welcome Vendor {request.user.email}!",
+            "shop": request.user.vendor_profile.shop_name if hasattr(request.user, "vendor_profile") else None,
+        })
 
-
-# -------------------------------
-# Customer Views
-# -------------------------------
-class CustomerProfileView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated, IsCustomer]
-
-    def get_object(self):
-        return self.request.user
