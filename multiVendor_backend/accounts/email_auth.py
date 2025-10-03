@@ -1,19 +1,23 @@
 # accounts/email_auth.py
+import logging
 from django.contrib.auth.backends import ModelBackend
 from .models import User
 
+logger = logging.getLogger(__name__)
+
 class EmailBackend(ModelBackend):
     def authenticate(self, request, email=None, password=None, **kwargs):
-        print("EmailBackend.authenticate CALLED with:", email)  # Debug line
+        logger.info("EmailBackend.authenticate called with: %s", email)
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            print(" No user found with email:", email)
+            logger.warning("No user found with email: %s", email)
             return None
 
         if user.check_password(password):
-            print("Password correct for:", email)
+            logger.info("Password correct for: %s", email)
             return user
         else:
-            print("Invalid password for:", email)
+            logger.warning("Invalid password for: %s", email)
         return None
