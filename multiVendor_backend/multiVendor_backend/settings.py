@@ -72,6 +72,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React (Vite) default port
 ]
 
+
+AUTHENTICATION_BACKENDS = [
+    "accounts.email_auth.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend"]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
